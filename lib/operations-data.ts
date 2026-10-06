@@ -1,0 +1,19 @@
+import {expandDemoRows} from "./demo-pagination";
+import {operationFixtures,type OperationPage} from './operations-fixtures';
+import type {TerminalRow} from './terminal-data';
+export {operationFixtures,type OperationPage};
+export const operationTitles:Record<OperationPage,string>={fees:'MDR & Fee',reconciliation:'Reconciliation',settlements:'Settlement List',ota:'OTA Update',fraud:'Fraud Monitoring'};
+export type OperationFilter={key:string;label:string;placeholder?:string;searchKeys?:string[];disabled?:boolean};
+export const operationFilters:Record<OperationPage,OperationFilter[]>={
+ fees:[{key:'query',label:'Nama Skema',placeholder:'Cari nama skema',searchKeys:['name']},{key:'channel',label:'Channel'},{key:'segment',label:'Segmen Merchant',disabled:true},{key:'status',label:'Status'}],
+ reconciliation:[{key:'query',label:'Recon ID / Transaction ID',placeholder:'Search reconciliation',searchKeys:['id','transaction']},{key:'exception',label:'Exception Type'},{key:'channel',label:'Channel'},{key:'status',label:'Status'}],
+ settlements:[{key:'query',label:'Settlement ID / Merchant',placeholder:'Cari settlement',searchKeys:['id','merchant']},{key:'channel',label:'Channel'},{key:'frequency',label:'Frequency'},{key:'status',label:'Status'}],
+ ota:[{key:'query',label:'Campaign ID / Name',placeholder:'Cari campaign',searchKeys:['id','name']},{key:'version',label:'Version'},{key:'model',label:'Device Model'},{key:'status',label:'Status'}],
+ fraud:[{key:'query',label:'Alert ID / Merchant',placeholder:'Cari alert',searchKeys:['id','merchant']},{key:'channel',label:'Channel'},{key:'severity',label:'Severity'},{key:'status',label:'Status'}]
+};
+export function initialOperations():Record<OperationPage,TerminalRow[]>{return Object.fromEntries(Object.entries(operationFixtures).map(([key,value])=>[key,expandDemoRows(value.rows)])) as Record<OperationPage,TerminalRow[]>;}
+export function filterOperations(page:OperationPage,rows:TerminalRow[],filters:Record<string,string>){return rows.filter(r=>operationFilters[page].every(f=>{const value=filters[f.key]?.trim();if(!value||f.disabled)return true;return f.searchKeys?f.searchKeys.some(k=>r[k]?.toLocaleLowerCase().includes(value.toLocaleLowerCase())):r[f.key]===value}));}
+export type FeeDraft={name:string;description:string;channel:string;configuration:string;value:string;effective:string;end:string};
+const validDate=(value:string)=>/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;
+export function feeDraftError(draft:FeeDraft){if(!draft.name.trim()||!draft.channel||!draft.value.trim()||!draft.effective||!draft.end)return 'Lengkapi field wajib sebelum menyimpan.';const value=Number(draft.value);if(!Number.isFinite(value)||value<0||(draft.configuration!=='Flat Fee'&&value>100))return 'Isi nilai fee yang valid. Nilai MDR berada antara 0–100%.';if(!validDate(draft.effective)||!validDate(draft.end))return 'Isi tanggal berlaku yang valid.';if(draft.end<draft.effective)return 'End Date harus sama atau setelah Efektif Date.';if(draft.configuration==='Tiered Rate')return 'Rincian tier belum ada di desain. Gunakan Single Rate atau Flat Fee untuk demo ini.';return '';}
+export function newFeeRow(draft:FeeDraft,id:string,today=new Date().toLocaleDateString('en-CA')):TerminalRow{const [year,month,day]=draft.effective.split('-');const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return {id,name:draft.name.trim(),description:draft.description,configuration:draft.configuration,channel:draft.channel,feeKind:draft.configuration==='Flat Fee'?'Flat Fee':'MDR',value:draft.configuration==='Flat Fee'?`Rp ${Number(draft.value).toLocaleString('id-ID')}`:`${Number(draft.value).toFixed(2)}%`,effective:`${day} ${months[Number(month)-1]} ${year}`,effectiveISO:draft.effective,endISO:draft.end,status:draft.end<today?'Kadaluarsa':draft.effective>today?'Terjadwal':'Aktif'};}

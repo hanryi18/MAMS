@@ -1,0 +1,49 @@
+/* MAMS Input Field and Select: enabled #fff; disabled #f9f9f9.
+   Figma: 105:2493, 105:2721, 1035:3524, 1035:3608.
+   Keep border, content, geometry, and focus styling owned by each component. */
+:root {
+  --mams-field-enabled-surface: #fff;
+  --mams-field-disabled-surface: #f9f9f9;
+}
+
+body :is(
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"], [type="button"], [type="submit"], [type="reset"]),
+  textarea,
+  select,
+  [data-slot="select-trigger"]
+):not(:disabled):not([readonly]):not([aria-disabled="true"]) {
+  background-color: var(--mams-field-enabled-surface);
+}
+
+body :is(
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"], [type="button"], [type="submit"], [type="reset"]),
+  textarea,
+  select,
+  [data-slot="select-trigger"]
+):is(:disabled, [readonly], [aria-disabled="true"]) {
+  background-color: var(--mams-field-disabled-surface);
+  pointer-events: none;
+  caret-color: transparent;
+  user-select: none;
+  opacity: 1;
+}
+
+/* Paint the whole outlined field, including space around icons. */
+.input-wrap,
+.tm-filter-field > div,
+[data-slot="input-group"] {
+  background-color: var(--mams-field-enabled-surface);
+}
+
+.input-wrap:has(input:is(:disabled, [readonly])),
+.tm-filter-field > div:has(:is(input, select):is(:disabled, [readonly])),
+[data-slot="input-group"]:has(:is(input, textarea):is(:disabled, [readonly])) {
+  background-color: var(--mams-field-disabled-surface);
+  cursor: default;
+}
+
+.reg-input:has(input:disabled),
+.tm-form-field:has(input:disabled),
+.reg-field:has(> input:disabled) {
+  cursor: default;
+}

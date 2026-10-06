@@ -1,0 +1,37 @@
+/* Brief motion on navigation and completed actions; no repeating table animations. */
+:root{--mams-motion-ease:cubic-bezier(.22,1,.36,1)}
+.mams-page-transition{min-width:0;animation:mams-page-enter 200ms var(--mams-motion-ease)}
+.mams-form-step{animation:mams-step-forward 200ms var(--mams-motion-ease)}
+.mams-form-step[data-motion-direction=back]{animation-name:mams-step-back}
+.tm-table tbody .tm-clickable-row,
+.tm-table tbody .tm-clickable-row>td{transition:background-color 120ms ease}
+.tm-table .tm-sticky-number,.tm-table .tm-sticky-action{transition:background-color 120ms ease}
+.mams-success[data-state=open]{animation:mams-success-enter 240ms var(--mams-motion-ease)}
+.reg-success[data-state=open]>img:first-child{animation:mams-success-mark 360ms var(--mams-motion-ease)}
+@keyframes mams-page-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mams-step-forward{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes mams-step-back{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes mams-success-enter{from{opacity:0;scale:.97}to{opacity:1;scale:1}}
+@keyframes mams-success-mark{0%{opacity:0;scale:.85}65%{opacity:1;scale:1.04}100%{opacity:1;scale:1}}
+/* Stable card nodes animate once on page entry, not on data/filter updates. */
+.mams-page-transition{--mams-table-delay:640ms}
+.mams-page-transition:has(.submission-summary.two){--mams-table-delay:320ms}
+.mams-page-transition:has(:is(.tm-summary-grid,.submission-summary,.dash-metrics)){animation:none}
+:is(.tm-summary-grid,.submission-summary,.dash-metrics,.dash-task-grid,.dash-quick-section .dash-four-grid)>:is(article,button){
+  animation:mams-card-enter 420ms var(--mams-motion-ease) both;
+}
+:is(.tm-summary-grid,.submission-summary,.dash-metrics,.dash-task-grid,.dash-quick-section .dash-four-grid)>:nth-child(2){animation-delay:160ms}
+:is(.tm-summary-grid,.submission-summary,.dash-metrics,.dash-task-grid,.dash-quick-section .dash-four-grid)>:nth-child(3){animation-delay:320ms}
+:is(.tm-summary-grid,.submission-summary,.dash-metrics,.dash-task-grid,.dash-quick-section .dash-four-grid)>:nth-child(n+4){animation-delay:480ms}
+.mams-page-transition .tm-data{animation:mams-section-enter 300ms var(--mams-motion-ease) var(--mams-table-delay) backwards}
+.dash-charts>.dash-card{animation:mams-card-enter 420ms var(--mams-motion-ease) 640ms backwards}
+.dash-charts>.dash-card:nth-child(2){animation-delay:800ms}
+.attention-card,.dash-priority-card{animation:mams-section-enter 300ms var(--mams-motion-ease) 960ms backwards}
+@keyframes mams-card-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mams-section-enter{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+  .mams-page-transition,.mams-form-step,.mams-success[data-state=open],.reg-success[data-state=open]>img:first-child{animation:none}
+  .tm-table tbody .tm-clickable-row,.tm-table tbody .tm-clickable-row>td,.tm-table .tm-sticky-number,.tm-table .tm-sticky-action{transition:none}
+  :is(.tm-summary-grid,.submission-summary,.dash-metrics,.dash-task-grid,.dash-quick-section .dash-four-grid)>:is(article,button),
+  .mams-page-transition .tm-data,.dash-charts>.dash-card,.attention-card,.dash-priority-card{animation:none}
+}
